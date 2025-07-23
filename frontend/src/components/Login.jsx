@@ -39,7 +39,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center from-gray-900 via-slate-800 to-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white/5 backdrop-blur-md text-white p-8 rounded-2xl shadow-2xl border border-white/10">
         <h3 className="text-3xl font-bold mb-6 text-center text-cyan-400 drop-shadow-md">
           Login to Your Account

@@ -10,6 +10,7 @@ import AuthProvider from "./AuthProvider";
 import Dashboard from "./components/tasks/Dashboard";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -38,9 +39,15 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute>
+                // <PrivateRoute>
                   <Dashboard />
-                </PrivateRoute>
+                // </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProfilePage />
               }
             />
           </Routes>
