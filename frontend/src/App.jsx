@@ -11,6 +11,7 @@ import Dashboard from "./components/tasks/Dashboard";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
 import ProfilePage from "./pages/ProfilePage";
+import NotificationPage from "./pages/NotificationPage";
 
 function App() {
   return (
@@ -48,6 +49,12 @@ function App() {
               path="/profile"
               element={
                 <ProfilePage />
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <NotificationPage />
               }
             />
           </Routes>

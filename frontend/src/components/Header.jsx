@@ -1,9 +1,11 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../AuthProvider";
 import Button from "./Button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { Menu, X } from "lucide-react";
+import defaultAvatar from '../assets/avatar.png';
+import bellIcon from '../assets/bell.png';
 
 function Header() {
   const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
@@ -30,16 +32,32 @@ function Header() {
           </Link>
 
           {/* Desktop buttons */}
-          <div id="hide-buttons" className="flex items-center gap-3">
-            {isLoggedIn ? (
+          <div id="hide-buttons" className="flex item gap-6 ">
+            {!isLoggedIn ? (
               <>
+                <Button url="/dashboard" text="Tasks"></Button>
+                <img
+                  src={defaultAvatar}
+                  onClick={() => navigate("/profile")}
+                  className="cursor-pointer w-10 h-10 object-cover rounded-full border-2 border-blue-400 hover:ring-2 hover:ring-white hover:scale-105 transition-all duration-200"
+                  alt="Profile"
+                />
+
+                <img
+                  src={bellIcon}
+                  onClick={() => navigate("/notifications")}
+                  className="cursor-pointer w-10 h-10 hover:scale-110 hover:drop-shadow-md transition-transform duration-200"
+                  alt="Notifications"
+                />
+
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 border border-white text-white hover:bg-red-500 hover:border-red-500 rounded-md font-medium transition"
+                  className="cursor-pointer px-4 py-2 border border-white text-white hover:bg-red-500 hover:border-red-500 rounded-md font-medium transition"
                 >
                   Logout
                 </button>
               </>
+
             ) : (
               <>
                 <Button
@@ -63,13 +81,20 @@ function Header() {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden mt-3 flex flex-col gap-2">
-            {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-medium transition"
-              >
-                Logout
-              </button>
+            {!isLoggedIn ? (
+              <>
+
+                <Button url="/profile" text="My Profile" />
+
+                <Button url="/notifications" text="My Notifications" />
+
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-medium transition"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <Button
