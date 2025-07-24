@@ -12,6 +12,6 @@ export type Task = {
 
 
 export type Column = {
-  id: TaskStatus;
+  id: string;
   title: string;
 };
