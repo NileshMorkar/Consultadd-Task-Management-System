@@ -1,0 +1,17 @@
+spring.application.name=project
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JPA/Hibernate properties
+spring.jpa.database=MYSQL
+spring.jpa.show-sql=true
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.format_sql=true
+
+# JWT Configuration
+app.jwt.secret=
+app.jwt.expiration=
+app.jwt.refresh-expiration=
