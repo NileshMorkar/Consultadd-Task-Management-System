@@ -1,8 +1,30 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { Pencil, Trash2 } from "lucide-react";
-
-export function TaskCard({ task, setTasks }) {
+import {
+  Pencil,
+  PlusCircle,
+  Trash2,
+} from "lucide-react";
+import AddCommentIcon from "@mui/icons-material/AddComment";
+import { comment } from "./types";
+export function TaskCard({
+  task,
+  setTasks,
+  suggestedTags = [
+    "p1",
+    "2D",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+    "p1",
+    "2D",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+  ],
+}) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task.id,
   });
@@ -19,15 +41,36 @@ export function TaskCard({ task, setTasks }) {
 
   const [showEdit, setShowEdit] = useState(false);
   const [editedTask, setEditedTask] = useState({ ...task });
+  const [isTagAddClick, setIsTagAddClick] = useState(false);
+
+  const [comments, setComments] = useState<comment[]>([]);
+  const [isCommentIconClick, setIsCommentIconClick] = useState(false);
+  const [newComment, setNewComment] = useState("");
 
   const handleUpdate = () => {
     console.log(editedTask);
-    
+    setComments([
+      { id: 1, msg: "123", msgby: "123dfg" },
+      { id: 2, msg: "123", msgby: "abcd" },
+      { id: 3, msg: "123", msgby: "dkljsdjkl" },
+      { id: 33, msg: "123", msgby: "dkljsdjkl" },
+    ]);
     setShowEdit(false);
   };
 
   const handleDelete = () => {
-    setTasks((prevTasks) => prevTasks.filter((t) => t.id !== task.id));
+    const confirmed = window.confirm(
+      `Are you sure you want to DELETE this task? \nTask Id : ${task.id}\nTask Name : ${task.title}`
+    );
+    if (confirmed) {
+      setTasks((prevTasks) => prevTasks.filter((t) => t.id !== task.id));
+    }
+  };
+
+  const getAllComments = (id) => {
+    console.log("get Comments For ", id);
+
+    setIsCommentIconClick(true);
   };
 
   return (
@@ -59,10 +102,28 @@ export function TaskCard({ task, setTasks }) {
         <h3 className="text-lg font-bold text-white mb-2">{task.title}</h3>
         <p className="text-sm text-gray-300">{task.description}</p>
 
+        {/* Tag List */}
+        <div className="mt-2 flex flex-wrap gap-2">
+          {task.tags?.map((tag, index) => (
+            <span
+              key={index}
+              className="bg-gray-500 text-white text-xs px-2 py-1 rounded-full"
+            >
+              {tag}
+            </span>
+          ))}
+          <PlusCircle
+            onClick={() => {
+              setIsTagAddClick(true);
+            }}
+            className="cursor-pointer text-gray-300 "
+          />
+        </div>
+
         {/* Buttons */}
         <div className="mt-4 flex gap-4">
           <button
-            className="p-2 rounded-4xl border text-blue-400 hover:text-blue-200 transition"
+            className="cursor-pointer p-2 rounded-4xl border text-blue-400 hover:text-blue-200 transition"
             title="Edit Task"
             onClick={() => {
               setEditedTask({ ...task }); // Reset form values
@@ -74,10 +135,21 @@ export function TaskCard({ task, setTasks }) {
           <button
             type="button"
             onClick={handleDelete}
-            className="p-2 rounded-4xl border text-red-400 hover:text-red-200 transition"
+            className="cursor-pointer p-2 rounded-4xl border text-red-400 hover:text-red-200 transition"
             title="Delete Task"
           >
             <Trash2 size={20} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              getAllComments(task.id);
+            }}
+            className="cursor-pointer p-2 rounded-4xl border text-white hover:text-grey transition"
+            title="Delete Task"
+          >
+            <AddCommentIcon />
           </button>
         </div>
       </div>

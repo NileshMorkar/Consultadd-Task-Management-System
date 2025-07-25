@@ -9,6 +9,11 @@ export type Task = {
   deadline: string;
   tags?: string[];
 };
+export type comment ={
+  id: number;
+  msg:string  
+  msgby:string
+}
 
 
 export type Column = {

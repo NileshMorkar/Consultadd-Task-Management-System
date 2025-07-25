@@ -5,6 +5,7 @@ import MarkChatUnreadSharpIcon from '@mui/icons-material/MarkChatUnreadSharp';
 import MarkChatReadSharpIcon from '@mui/icons-material/MarkChatReadSharp';
 import Tooltip from '@mui/material/Tooltip';
 import axiosInstance from '../axiosInstance';
+import CustomSnackbar from '../components/CustomSnackBar';
 
 const dummyNotifications = [
   {
@@ -53,9 +54,14 @@ function formatDate(dateStr) {
 
 export default function NotificationPage() {
 
+  const [isSnackbar, setIsSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
   const readMessages = [];
   const unreadMessages = [];
   const [isEmpty, setIsEmpty] = useState(false);
+
+
 
 
 
@@ -78,81 +84,92 @@ export default function NotificationPage() {
   }
 
   const handleMarkAllAsRead = () => {
+    setIsSnackbar(true);
+    setSnackbarMessage('All Messages Are Read !!');
+
     console.log("Mark All As read");
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8">
-      <div className='flex justify-between'>
-        <h1 className="text-white text-3xl font-bold  mb-6">Notifications</h1>
-        <Button onClick={handleMarkAllAsRead} variant="contained" className='h-10'>Mark All As Read</Button>
-      </div>
+    <>
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        <div className='flex justify-between'>
+          <h1 className="text-white text-3xl font-bold  mb-6">Notifications</h1>
+          <Button onClick={handleMarkAllAsRead} variant="contained" className='h-10'>Mark All As Read</Button>
+        </div>
 
-      <div className="space-y-4">
-        {dummyNotifications.map((note) => (
-          <>
-            <div>
+        <div className="space-y-4">
+          {dummyNotifications.map((note) => (
+            <>
+              <div>
 
-              <div
-                key={note.id}
-                className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition p-5"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {note.title}
-                  </h2>
-                  <span className="text-xs text-gray-400">
-                    {formatDate(note.date)}
-                  </span>
+                <div
+                  key={note.id}
+                  className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition p-5"
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {note.title}
+                    </h2>
+                    <span className="text-xs text-gray-400">
+                      {formatDate(note.date)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-4">{note.message}</p>
+
+
+                  <Tooltip title="Mark As Read">
+                    <Button onClick={handleOnRead} variant="contained" className='mt-10 h-8'><MarkChatUnreadSharpIcon /></Button>
+                  </Tooltip>
+
+
+
                 </div>
-                <p className="text-sm text-gray-700 mb-4">{note.message}</p>
-
-
-                <Tooltip title="Mark As Read">
-                  <Button onClick={handleOnRead} variant="contained" className='mt-10 h-8'><MarkChatUnreadSharpIcon /></Button>
-                </Tooltip>
-
-
 
               </div>
+            </>
+          ))}
+        </div>
 
-            </div>
-          </>
-        ))}
-      </div>
+        {/* Read Messages */}
+        <div className="mt-4 space-y-4">
+          {unreadMessages.map((note) => (
+            <>
+              <div>
 
-      {/* Read Messages */}
-      <div className="mt-4 space-y-4">
-        {unreadMessages.map((note) => (
-          <>
-            <div>
+                <div
+                  key={note.id}
+                  className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition p-5"
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {note.title}
+                    </h2>
+                    <span className="text-xs text-gray-400">
+                      {formatDate(note.date)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-4">{note.message}</p>
 
-              <div
-                key={note.id}
-                className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition p-5"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {note.title}
-                  </h2>
-                  <span className="text-xs text-gray-400">
-                    {formatDate(note.date)}
-                  </span>
+                  <Button disabled onClick={handleOnRead} variant="contained" className='mt-10 h-8'><MarkChatReadSharpIcon /></Button>
+
                 </div>
-                <p className="text-sm text-gray-700 mb-4">{note.message}</p>
-
-                <Button disabled onClick={handleOnRead} variant="contained" className='mt-10 h-8'><MarkChatReadSharpIcon /></Button>
 
               </div>
+            </>
+          ))}
+        </div>
 
-            </div>
-          </>
-        ))}
+        {isEmpty && (
+          <p className="text-gray-500 text-center">No notifications found.</p>
+        )}
       </div>
 
-      {isEmpty && (
-        <p className="text-gray-500 text-center">No notifications found.</p>
-      )}
-    </div>
+
+      {/* All Read snackbar messages */}
+
+      <CustomSnackbar open={isSnackbar} message={snackbarMessage} onClose={() => { setIsSnackbar(false); setSnackbarMessage(''); }} />
+
+    </>
   );
 }

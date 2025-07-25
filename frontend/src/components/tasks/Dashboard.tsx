@@ -45,7 +45,7 @@ const INITIAL_TASKS: Task[] = [
     status: "DONE",
     priority: "Medium",
     deadline: "2025-07-21",
-    tags: ["testing"],
+    tags: ["testing",'frontend'],
   },
   {
     id: "5",
@@ -167,9 +167,11 @@ function Dashboard() {
           <option value="DONE">Done</option>
         </select>
 
+        
+
         <button
           onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700"
+          className="bg-gray-600 text-white px-4 py-1.5 rounded hover:bg-blue-700"
         >
           + Create Task
         </button>

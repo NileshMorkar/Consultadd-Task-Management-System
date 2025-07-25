@@ -4,8 +4,10 @@ import Button from "./Button";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { Menu, X } from "lucide-react";
-import defaultAvatar from '../assets/avatar.png';
-import bellIcon from '../assets/bell.png';
+import defaultAvatar from "../assets/avatar.png";
+import bellIcon from "../assets/bell.png";
+
+import Avatar from "@mui/material/Avatar";
 
 function Header() {
   const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
@@ -36,13 +38,12 @@ function Header() {
             {!isLoggedIn ? (
               <>
                 <Button url="/dashboard" text="Tasks"></Button>
-                <img
-                  src={defaultAvatar}
+                <Avatar
                   onClick={() => navigate("/profile")}
-                  className="cursor-pointer w-10 h-10 object-cover rounded-full border-2 border-blue-400 hover:ring-2 hover:ring-white hover:scale-105 transition-all duration-200"
-                  alt="Profile"
-                />
-
+                  className="cursor-pointer w-10 h-10 border-2 border-blue-400 hover:ring-2 hover:ring-white hover:scale-105 transition-all duration-200"
+                >
+                  N
+                </Avatar>
                 <img
                   src={bellIcon}
                   onClick={() => navigate("/notifications")}
@@ -57,17 +58,10 @@ function Header() {
                   Logout
                 </button>
               </>
-
             ) : (
               <>
-                <Button
-                  text="Login"
-                  url="/login"
-                />
-                <Button
-                  text="Register"
-                  url="/register"
-                />
+                <Button text="Login" url="/login" />
+                <Button text="Register" url="/register" />
               </>
             )}
           </div>
@@ -83,7 +77,6 @@ function Header() {
           <div className="md:hidden mt-3 flex flex-col gap-2">
             {!isLoggedIn ? (
               <>
-
                 <Button url="/profile" text="My Profile" />
 
                 <Button url="/notifications" text="My Notifications" />
