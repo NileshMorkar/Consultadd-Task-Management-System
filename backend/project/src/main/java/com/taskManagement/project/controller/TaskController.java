@@ -2,6 +2,7 @@ package com.taskManagement.project.controller;
 
 import com.taskManagement.project.config.SecurityUtils;
 import com.taskManagement.project.dto.*;
+import com.taskManagement.project.model.Tag;
 import com.taskManagement.project.model.Task;
 import com.taskManagement.project.model.User;
 import com.taskManagement.project.service.TaskService;
@@ -38,11 +39,42 @@ public class TaskController {
         return ResponseEntity.ok(convertToDto(created));
     }
 
+//    @GetMapping
+//    public ResponseEntity<List<TaskResponseDto>> listTasks() {
+//        String email = SecurityUtils.getCurrentUserEmail();
+//        User user = userService.findByEmail(email).orElseThrow();
+//
+//        return ResponseEntity.ok(taskService.getAllTasksById(user.getId())
+//                .stream().map(this::convertToDto).collect(Collectors.toList()));
+//    }
+
     @GetMapping
     public ResponseEntity<List<TaskResponseDto>> listTasks() {
-        return ResponseEntity.ok(taskService.getAllTasks()
-                .stream().map(this::convertToDto).collect(Collectors.toList()));
+        String email = SecurityUtils.getCurrentUserEmail();
+        User user = userService.findByEmail(email).orElseThrow();
+
+        return ResponseEntity.ok(
+                taskService.getAllTasksById(user.getId())
+                        .stream()
+                        .map(this::convertToDto)
+                        .collect(Collectors.toList())
+        );
     }
+
+    @GetMapping("/with-status")
+    public ResponseEntity<List<TaskResponseWithStatusDto>> listTasksWithStatus() {
+        String email = SecurityUtils.getCurrentUserEmail();
+        User user = userService.findByEmail(email).orElseThrow();
+
+        return ResponseEntity.ok(
+                taskService.getAllTasksById(user.getId())
+                        .stream()
+                        .map(task -> convertToWithStatusDto(task, user))
+                        .collect(Collectors.toList())
+        );
+    }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskResponseDto> getTask(@PathVariable Long id) {
@@ -90,6 +122,30 @@ public class TaskController {
         taskService.updateTaskStatus(id, userId, dto.getStatusId());
         return ResponseEntity.ok().build();
     }
+
+    private TaskResponseWithStatusDto convertToWithStatusDto(Task task, User user) {
+        String statusName = task.getTaskAssignments().stream()
+                .filter(mapping -> mapping.getUser().getId().equals(user.getId()))
+                .findFirst()
+                .map(mapping -> mapping.getStatus().getName().name())
+                .orElse(null);
+
+        return TaskResponseWithStatusDto.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .priority(task.getPriority().name())
+                .deadline(task.getDeadline())
+                .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
+                .status(statusName)
+                .tagNames(task.getTags().stream().map(Tag::getName).collect(Collectors.toSet()))
+                .assigneeEmails(task.getTaskAssignments().stream()
+                        .map(mapping -> mapping.getUser().getEmail())
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
 
     private TaskResponseDto convertToDto(Task task) {
         return TaskResponseDto.builder()
