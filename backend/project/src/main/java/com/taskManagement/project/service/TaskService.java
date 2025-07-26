@@ -18,6 +18,7 @@ public class TaskService {
     private final TagRepository tagRepository;
     private final StatusRepository statusRepository;
     private final UserTaskMappingRepository userTaskMappingRepository;
+    private final NotificationService notificationService;
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
@@ -28,6 +29,8 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
+
+
         task.setTags(tags);
         task.setCreatedBy(creator);
         task.setCreatedAt(LocalDateTime.now());
@@ -63,6 +66,14 @@ public class TaskService {
         Status defaultStatus = statusRepository.findByName(Status.StatusName.TODO)
                 .orElseThrow(() -> new RuntimeException("Default status not found"));
 
+        Set<User> assignees = userTaskMappingRepository.findByTask(task)
+                .stream().map(UserTaskMapping::getUser).collect(Collectors.toSet());
+
+        assignees.remove(task.getCreatedBy()); // Don't notify self
+
+        notificationService.notifyUsers(assignees, task, "New task assigned: " + task.getTitle());
+
+
         for (Long userId : userIds) {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -74,6 +85,14 @@ public class TaskService {
     public void unassignUsers(Long taskId, Set<Long> userIds) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        Set<User> assignees = userTaskMappingRepository.findByTask(task)
+                .stream().map(UserTaskMapping::getUser).collect(Collectors.toSet());
+
+        assignees.remove(task.getCreatedBy()); // Don't notify self
+
+        notificationService.notifyUsers(assignees, task, " Task unassigned: " + task.getTitle());
+
 
         for (Long userId : userIds) {
             User user = userRepository.findById(userId)

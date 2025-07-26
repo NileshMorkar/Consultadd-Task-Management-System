@@ -25,6 +25,7 @@ public class Notification {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @Column(nullable = false, columnDefinition = "BIT(1) DEFAULT 0")
     private boolean readFlag;
 
     @ManyToOne(fetch = FetchType.LAZY)
