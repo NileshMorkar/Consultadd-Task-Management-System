@@ -4,7 +4,7 @@ import axios from "axios";
 
 function Register() {
   const [formData, setFormData] = useState({
-    username: "",
+    fullName: "",
     email: "",
     password: "",
   });
@@ -23,7 +23,7 @@ function Register() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/v1/register/",
+        "http://127.0.0.1:8080/api/auth/register",
         formData
       );
       console.log("Registration Successful", response.data);
@@ -50,14 +50,14 @@ function Register() {
           <div>
             <input
               type="text"
-              name="username"
-              placeholder="Username"
+              name="fullName"
+              placeholder="Full Name"
               value={formData.username}
               onChange={handleFormaData}
               className="w-full px-4 py-2 rounded-md border border-cyan-500 bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
             />
             {errors.username && (
-              <p className="text-sm text-red-500 mt-1">{errors.username}</p>
+              <p className="text-sm text-red-500 mt-1">{errors.fullName}</p>
             )}
           </div>
 
@@ -102,11 +102,10 @@ function Register() {
           <div className="pt-4">
             <button
               type="submit"
-              className={`w-full py-2 rounded-md font-semibold transition-all ${
-                loading
+              className={`w-full py-2 rounded-md font-semibold transition-all ${loading
                   ? "bg-gray-400 cursor-not-allowed text-white"
                   : "bg-cyan-500 hover:bg-cyan-600 text-white"
-              }`}
+                }`}
               disabled={loading}
             >
               {loading ? "Please wait..." : "Register"}

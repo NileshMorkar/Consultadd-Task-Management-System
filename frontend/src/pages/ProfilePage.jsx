@@ -1,16 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import defaultAvatar from '../assets/avatar.png';
+import axiosInstance from '../axiosInstance';
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
+
+
   const [user, setUser] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
+    name: '',
+    email: '',
     lastLogin: '2025-07-20 15:30',
     updatedAt: '2025-07-19 14:00',
     avatar: defaultAvatar,
   });
 
+  useEffect(() => {
+    const getProfileData = async () => {
+      try {
+        const response = await axiosInstance.get("/users/me");
+
+        setUser((prev) => ({
+          ...prev,
+          name: response.data.fullName,
+          email: response.data.email,
+          lastLogin: response.data.lastLogin,
+          updatedAt: response.data.updatedAt,
+          avatar: defaultAvatar,
+        }));
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    getProfileData();
+  }, []);
+
+
+
+  const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ ...user });
 
   // 🖼️ Handle text changes

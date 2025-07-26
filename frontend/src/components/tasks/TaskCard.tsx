@@ -1,29 +1,15 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import {
-  Pencil,
-  PlusCircle,
-  Trash2,
-} from "lucide-react";
+import { Pencil, PlusCircle, Trash2 } from "lucide-react";
 import AddCommentIcon from "@mui/icons-material/AddComment";
 import { comment } from "./types";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 export function TaskCard({
   task,
   setTasks,
-  suggestedTags = [
-    "p1",
-    "2D",
-    "p3",
-    "p4",
-    "p5",
-    "p6",
-    "p1",
-    "2D",
-    "p3",
-    "p4",
-    "p5",
-    "p6",
-  ],
+  suggestedTags = ["p1", "2D", "p3", "p4", "p5", "p6"],
 }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task.id,
@@ -42,6 +28,8 @@ export function TaskCard({
   const [showEdit, setShowEdit] = useState(false);
   const [editedTask, setEditedTask] = useState({ ...task });
   const [isTagAddClick, setIsTagAddClick] = useState(false);
+  //
+  const [isTagEditClick, setIsTagEditClick] = useState(false);
 
   const [comments, setComments] = useState<comment[]>([]);
   const [isCommentIconClick, setIsCommentIconClick] = useState(false);
@@ -103,21 +91,44 @@ export function TaskCard({
         <p className="text-sm text-gray-300">{task.description}</p>
 
         {/* Tag List */}
-        <div className="mt-2 flex flex-wrap gap-2">
-          {task.tags?.map((tag, index) => (
-            <span
-              key={index}
-              className="bg-gray-500 text-white text-xs px-2 py-1 rounded-full"
-            >
-              {tag}
-            </span>
-          ))}
-          <PlusCircle
-            onClick={() => {
-              setIsTagAddClick(true);
-            }}
-            className="cursor-pointer text-gray-300 "
-          />
+        <div className="mt-2 flex  gap-2">
+          {task.tags?.map(
+            (tag, index) =>
+              !isTagEditClick && (
+                <div
+                  key={index}
+                  className="flex bg-gray-500 text-white text-xs px-2 py-1 rounded-full"
+                >
+                  {tag}
+
+                  <Pencil
+                    onClick={() => {
+                      setIsTagEditClick(true);
+                    }}
+                    className="ml-2 cursor-pointer  hover:text-blue-800 transition"
+                    size={18}
+                  />
+                </div>
+              )
+          )}
+          <Tooltip title="Add Tag">
+            <PlusCircle
+              onClick={() => {
+                setIsTagAddClick(true);
+              }}
+              className="cursor-pointer text-gray-300 "
+            />
+          </Tooltip>
+
+          {isTagAddClick && (
+            <div>
+              <Autocomplete
+                disablePortal
+                options={suggestedTags}
+                renderInput={(params) => <TextField {...params} label="Tag" />}
+              />
+            </div>
+          )}
         </div>
 
         {/* Buttons */}
@@ -126,7 +137,7 @@ export function TaskCard({
             className="cursor-pointer p-2 rounded-4xl border text-blue-400 hover:text-blue-200 transition"
             title="Edit Task"
             onClick={() => {
-              setEditedTask({ ...task }); // Reset form values
+              setEditedTask({ ...task });
               setShowEdit(true);
             }}
           >

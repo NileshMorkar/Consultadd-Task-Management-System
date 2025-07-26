@@ -35,7 +35,7 @@ function Header() {
 
           {/* Desktop buttons */}
           <div id="hide-buttons" className="flex item gap-6 ">
-            {!isLoggedIn ? (
+            {isLoggedIn ? (
               <>
                 <Button url="/dashboard" text="Tasks"></Button>
                 <Avatar
