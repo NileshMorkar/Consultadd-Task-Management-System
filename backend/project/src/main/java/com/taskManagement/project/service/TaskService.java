@@ -24,20 +24,54 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
+    public List<Task> getAllTasksById(Long id){
+        return taskRepository.findAllTasksByCreatedBy_Id(id);
+    }
+
+//    public Task createTask(Task task, Long creatorId, Set<Long> tagIds) {
+//        User creator = userRepository.findById(creatorId)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
+//
+//
+//        task.setTags(tags);
+//        task.setCreatedBy(creator);
+//        task.setCreatedAt(LocalDateTime.now());
+//        task.setUpdatedAt(LocalDateTime.now());
+//
+//        return taskRepository.save(task);
+//    }
+
     public Task createTask(Task task, Long creatorId, Set<Long> tagIds) {
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
-
+        Status defaultStatus = statusRepository.findByName(Status.StatusName.TODO)
+                .orElseThrow(() -> new RuntimeException("Default status not found"));
 
         task.setTags(tags);
         task.setCreatedBy(creator);
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
 
-        return taskRepository.save(task);
+        // 💾 Save the task first to generate ID
+        Task savedTask = taskRepository.save(task);
+
+        // 👥 Create user-task mapping after task is saved
+        UserTaskMapping mapping = UserTaskMapping.builder()
+                .task(savedTask)
+                .user(creator)
+                .status(defaultStatus)
+                .assignedAt(LocalDateTime.now())
+                .build();
+
+        userTaskMappingRepository.save(mapping);
+
+        return savedTask;
     }
+
 
     public Task updateTask(Long taskId, Task updatedData, Set<Long> tagIds) {
         Task task = taskRepository.findById(taskId)
