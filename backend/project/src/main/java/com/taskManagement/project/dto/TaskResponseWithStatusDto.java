@@ -17,8 +17,7 @@ public class TaskResponseWithStatusDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Set<String> tagNames;
+    private Set<String> tagNames; // ✅ changed from tagIds to tagNames
     private Set<String> assigneeEmails;
-
     private String status; // ✅ specific to the current user
 }

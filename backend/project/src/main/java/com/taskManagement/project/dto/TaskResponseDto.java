@@ -16,6 +16,6 @@ public class TaskResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;
-    private Set<String> tags;
+    private Set<String> tagNames;
     private Set<String> assignees;
 }

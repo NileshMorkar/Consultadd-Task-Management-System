@@ -12,5 +12,5 @@ public class TaskRequestDto {
     private String description;
     private String priority;
     private LocalDateTime deadline;
-    private Set<Long> tagIds;
+    private Set<String> tagNames; // ✅ using tag names only
 }

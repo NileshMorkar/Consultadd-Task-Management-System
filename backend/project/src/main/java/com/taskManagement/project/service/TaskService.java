@@ -43,51 +43,102 @@ public class TaskService {
 //        return taskRepository.save(task);
 //    }
 
-    public Task createTask(Task task, Long creatorId, Set<Long> tagIds) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+//    public Task createTask(Task task, Long creatorId, Set<Long> tagIds) {
+//        User creator = userRepository.findById(creatorId)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
+//        Status defaultStatus = statusRepository.findByName(Status.StatusName.TODO)
+//                .orElseThrow(() -> new RuntimeException("Default status not found"));
+//
+//        task.setTags(tags);
+//        task.setCreatedBy(creator);
+//        task.setCreatedAt(LocalDateTime.now());
+//        task.setUpdatedAt(LocalDateTime.now());
+//
+//        // 💾 Save the task first to generate ID
+//        Task savedTask = taskRepository.save(task);
+//
+//        // 👥 Create user-task mapping after task is saved
+//        UserTaskMapping mapping = UserTaskMapping.builder()
+//                .task(savedTask)
+//                .user(creator)
+//                .status(defaultStatus)
+//                .assignedAt(LocalDateTime.now())
+//                .build();
+//
+//        userTaskMappingRepository.save(mapping);
+//
+//        return savedTask;
+//    }
+public Task createTask(Task task, Long creatorId, Set<String> tagNames) {
+    User creator = userRepository.findById(creatorId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
-        Status defaultStatus = statusRepository.findByName(Status.StatusName.TODO)
-                .orElseThrow(() -> new RuntimeException("Default status not found"));
+    // Convert tag names to Tag entities
+    Set<Tag> tags = tagNames.stream()
+            .map(name -> tagRepository.findByName(name)
+                    .orElseGet(() -> tagRepository.save(Tag.builder().name(name).build()))
+            ).collect(Collectors.toSet());
 
-        task.setTags(tags);
-        task.setCreatedBy(creator);
-        task.setCreatedAt(LocalDateTime.now());
-        task.setUpdatedAt(LocalDateTime.now());
+    task.setTags(tags);
+    task.setCreatedBy(creator);
+    task.setCreatedAt(LocalDateTime.now());
+    task.setUpdatedAt(LocalDateTime.now());
 
-        // 💾 Save the task first to generate ID
-        Task savedTask = taskRepository.save(task);
+    Task savedTask = taskRepository.save(task);
 
-        // 👥 Create user-task mapping after task is saved
-        UserTaskMapping mapping = UserTaskMapping.builder()
-                .task(savedTask)
-                .user(creator)
-                .status(defaultStatus)
-                .assignedAt(LocalDateTime.now())
-                .build();
+    // Assign the creator as the initial user-task mapping
+    Status todoStatus = statusRepository.findByName(Status.StatusName.TODO)
+            .orElseThrow(() -> new RuntimeException("Status TODO not found"));
 
-        userTaskMappingRepository.save(mapping);
+    UserTaskMapping mapping = UserTaskMapping.builder()
+            .task(savedTask)
+            .user(creator)
+            .status(todoStatus)
+            .build();
 
-        return savedTask;
-    }
+    userTaskMappingRepository.save(mapping);
+    savedTask.setTaskAssignments(Set.of(mapping));
+
+    return savedTask;
+}
 
 
-    public Task updateTask(Long taskId, Task updatedData, Set<Long> tagIds) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+//    public Task updateTask(Long taskId, Task updatedData, Set<Long> tagIds) {
+//        Task task = taskRepository.findById(taskId)
+//                .orElseThrow(() -> new RuntimeException("Task not found"));
+//
+//        task.setTitle(updatedData.getTitle());
+//        task.setDescription(updatedData.getDescription());
+//        task.setPriority(updatedData.getPriority());
+//        task.setDeadline(updatedData.getDeadline());
+//        task.setUpdatedAt(LocalDateTime.now());
+//
+//        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
+//        task.setTags(tags);
+//
+//        return taskRepository.save(task);
+//    }
+public Task updateTask(Long taskId, Task updatedTaskData, Set<String> tagNames) {
+    Task existingTask = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        task.setTitle(updatedData.getTitle());
-        task.setDescription(updatedData.getDescription());
-        task.setPriority(updatedData.getPriority());
-        task.setDeadline(updatedData.getDeadline());
-        task.setUpdatedAt(LocalDateTime.now());
+    existingTask.setTitle(updatedTaskData.getTitle());
+    existingTask.setDescription(updatedTaskData.getDescription());
+    existingTask.setPriority(updatedTaskData.getPriority());
+    existingTask.setDeadline(updatedTaskData.getDeadline());
+    existingTask.setUpdatedAt(LocalDateTime.now());
 
-        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(tagIds));
-        task.setTags(tags);
+    Set<Tag> tags = tagNames.stream()
+            .map(name -> tagRepository.findByName(name)
+                    .orElseGet(() -> tagRepository.save(Tag.builder().name(name).build()))
+            ).collect(Collectors.toSet());
 
-        return taskRepository.save(task);
-    }
+    existingTask.setTags(tags);
+
+    return taskRepository.save(existingTask);
+}
 
     public void deleteTask(Long taskId) {
         taskRepository.deleteById(taskId);
