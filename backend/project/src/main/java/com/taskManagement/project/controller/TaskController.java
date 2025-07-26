@@ -24,20 +24,21 @@ public class TaskController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<TaskResponseDto> createTask(@RequestBody TaskRequestDto dto) {
+    public ResponseEntity<TaskResponseWithStatusDto> createTask(@RequestBody TaskRequestDto dto) {
         String email = SecurityUtils.getCurrentUserEmail();
         User user = userService.findByEmail(email).orElseThrow();
 
-        Long creatorId = user.getId();; //  authenticated user ID
         Task task = Task.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .priority(Task.Priority.valueOf(dto.getPriority()))
                 .deadline(dto.getDeadline())
                 .build();
-        Task created = taskService.createTask(task, creatorId, dto.getTagIds());
-        return ResponseEntity.ok(convertToDto(created));
+
+        Task created = taskService.createTask(task, user.getId(), dto.getTagNames());
+        return ResponseEntity.ok(convertToWithStatusDto(created, user));
     }
+
 
 //    @GetMapping
 //    public ResponseEntity<List<TaskResponseDto>> listTasks() {
@@ -92,9 +93,11 @@ public class TaskController {
                 .priority(Task.Priority.valueOf(dto.getPriority()))
                 .deadline(dto.getDeadline())
                 .build();
-        Task updated = taskService.updateTask(id, task, dto.getTagIds());
+
+        Task updated = taskService.updateTask(id, task, dto.getTagNames());
         return ResponseEntity.ok(convertToDto(updated));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable Long id) {
@@ -123,28 +126,63 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
-    private TaskResponseWithStatusDto convertToWithStatusDto(Task task, User user) {
-        String statusName = task.getTaskAssignments().stream()
-                .filter(mapping -> mapping.getUser().getId().equals(user.getId()))
-                .findFirst()
-                .map(mapping -> mapping.getStatus().getName().name())
-                .orElse(null);
+//    private TaskResponseWithStatusDto convertToWithStatusDto(Task task, User user) {
+//        String statusName = task.getTaskAssignments().stream()
+//                .filter(mapping -> mapping.getUser().getId().equals(user.getId()))
+//                .findFirst()
+//                .map(mapping -> mapping.getStatus().getName().name())
+//                .orElse(null);
+//
+//        return TaskResponseWithStatusDto.builder()
+//                .id(task.getId())
+//                .title(task.getTitle())
+//                .description(task.getDescription())
+//                .priority(task.getPriority().name())
+//                .deadline(task.getDeadline())
+//                .createdAt(task.getCreatedAt())
+//                .updatedAt(task.getUpdatedAt())
+//                .status(statusName)
+//
+//                // ✅ add tagIds
+//                .tagIds(
+//                        task.getTags().stream()
+//                                .map(Tag::getId)
+//                                .collect(Collectors.toSet())
+//                )
+//
+//                // ✅ add assignee emails
+//                .assigneeEmails(
+//                        task.getTaskAssignments().stream()
+//                                .map(mapping -> mapping.getUser().getEmail())
+//                                .collect(Collectors.toSet())
+//                )
+//
+//                .build();
+//    }
+private TaskResponseWithStatusDto convertToWithStatusDto(Task task, User user) {
+    String statusName = task.getTaskAssignments().stream()
+            .filter(mapping -> mapping.getUser().getId().equals(user.getId()))
+            .findFirst()
+            .map(mapping -> mapping.getStatus().getName().name())
+            .orElse(null);
 
-        return TaskResponseWithStatusDto.builder()
-                .id(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .priority(task.getPriority().name())
-                .deadline(task.getDeadline())
-                .createdAt(task.getCreatedAt())
-                .updatedAt(task.getUpdatedAt())
-                .status(statusName)
-                .tagNames(task.getTags().stream().map(Tag::getName).collect(Collectors.toSet()))
-                .assigneeEmails(task.getTaskAssignments().stream()
-                        .map(mapping -> mapping.getUser().getEmail())
-                        .collect(Collectors.toSet()))
-                .build();
-    }
+    return TaskResponseWithStatusDto.builder()
+            .id(task.getId())
+            .title(task.getTitle())
+            .description(task.getDescription())
+            .priority(task.getPriority().name())
+            .deadline(task.getDeadline())
+            .createdAt(task.getCreatedAt())
+            .updatedAt(task.getUpdatedAt())
+            .status(statusName)
+            .tagNames(task.getTags().stream()
+                    .map(Tag::getName)
+                    .collect(Collectors.toSet()))
+            .assigneeEmails(task.getTaskAssignments().stream()
+                    .map(mapping -> mapping.getUser().getEmail())
+                    .collect(Collectors.toSet()))
+            .build();
+}
 
 
     private TaskResponseDto convertToDto(Task task) {
@@ -157,7 +195,7 @@ public class TaskController {
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
                 .createdBy(task.getCreatedBy().getEmail())
-                .tags(task.getTags().stream().map(t -> t.getName()).collect(Collectors.toSet()))
+                .tagNames(task.getTags().stream().map(t -> t.getName()).collect(Collectors.toSet()))
                 .assignees(task.getTaskAssignments().stream().map(utm -> utm.getUser().getEmail()).collect(Collectors.toSet()))
                 .build();
     }
