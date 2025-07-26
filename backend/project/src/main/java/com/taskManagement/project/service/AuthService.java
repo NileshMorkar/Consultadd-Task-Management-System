@@ -33,7 +33,7 @@ public class AuthService {
     @Transactional
     public void registerUser(RegisterRequest registerRequest) {
         // Check if user with the same username already exist
-        if(userRepository.existsByUsername(registerRequest.getUsername())) {
+        if(userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new IllegalArgumentException("Username is already in use");
         }
 
@@ -41,7 +41,7 @@ public class AuthService {
         User user = User
                 .builder()
                 .fullName(registerRequest.getFullName())
-                .username(registerRequest.getUsername())
+                .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
 
@@ -52,7 +52,7 @@ public class AuthService {
         // Authenticate the user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
+                        loginRequest.getEmail(),
                         loginRequest.getPassword()
                 )
         );
