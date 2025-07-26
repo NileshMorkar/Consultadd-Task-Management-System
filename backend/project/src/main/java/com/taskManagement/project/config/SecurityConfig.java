@@ -61,7 +61,17 @@ public class SecurityConfig {
                         req -> req
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/v3/api-docs").permitAll()
-                                .requestMatchers("/swagger-ui.html").permitAll()
+                                .requestMatchers( "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/favicon.ico",
+                                        "/swagger-ui/index.css",
+                                        "/swagger-ui/swagger-ui.css",
+                                        "/swagger-ui/swagger-ui-bundle.js",
+                                        "/swagger-ui/swagger-ui-standalone-preset.js",
+                                        "/swagger-ui/swagger-initializer.js").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(
