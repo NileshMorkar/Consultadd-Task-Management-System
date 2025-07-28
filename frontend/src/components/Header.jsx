@@ -4,7 +4,6 @@ import Button from "./Button";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { Menu, X } from "lucide-react";
-import defaultAvatar from "../assets/avatar.png";
 import bellIcon from "../assets/bell.png";
 
 import Avatar from "@mui/material/Avatar";
@@ -35,7 +34,7 @@ function Header() {
 
           {/* Desktop buttons */}
           <div id="hide-buttons" className="flex item gap-6 ">
-            {!isLoggedIn ? (
+            {isLoggedIn ? (
               <>
                 <Button url="/dashboard" text="Tasks"></Button>
                 <Avatar
@@ -75,12 +74,12 @@ function Header() {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden mt-3 flex flex-col gap-2">
-            {!isLoggedIn ? (
+            {isLoggedIn ? (
               <>
+                <Button url="/dashboard" text="My Dashboard" />
                 <Button url="/profile" text="My Profile" />
-
                 <Button url="/notifications" text="My Notifications" />
-
+                
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-medium transition"

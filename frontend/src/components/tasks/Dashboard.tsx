@@ -1,93 +1,60 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { Task, Column as ColumnType } from "./types";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import CreateTask from "./CreateTask";
 import { Column as TaskColumn } from "./Column";
-import { Plus } from "lucide-react";
+import axiosInstance from "../../axiosInstance";
+import CircularProgress from "@mui/material/CircularProgress";
 const COLUMNS: ColumnType[] = [
   { id: "TODO", title: "To Do" },
   { id: "IN_PROGRESS", title: "In Progress" },
   { id: "DONE", title: "Done" },
 ];
 
-const INITIAL_TASKS: Task[] = [
-  {
-    id: "1",
-    title: "Research Project",
-    description: "Gather requirements and create initial documentation",
-    status: "TODO",
-    priority: "High",
-    deadline: "2025-07-25",
-    tags: ["research"],
-  },
-  {
-    id: "2",
-    title: "Design System",
-    description: "Create component library and design tokens",
-    status: "TODO",
-    priority: "Medium",
-    deadline: "2025-07-28",
-    tags: ["design"],
-  },
-  {
-    id: "3",
-    title: "API Integration",
-    description: "Implement REST API endpoints",
-    status: "IN_PROGRESS",
-    priority: "Low",
-    deadline: "2025-07-23",
-    tags: ["backend"],
-  },
-  {
-    id: "4",
-    title: "Testing",
-    description: "Write unit tests for core functionality",
-    status: "DONE",
-    priority: "Medium",
-    deadline: "2025-07-21",
-    tags: ["testing",'frontend'],
-  },
-  {
-    id: "5",
-    title: "Testing 1",
-    description: "Write unit tests for core functionality",
-    status: "DONE",
-    priority: "Medium",
-    deadline: "2025-07-21",
-    tags: ["testing"],
-  },
-  {
-    id: "6",
-    title: "Testing 2",
-    description: "Write unit tests for core functionality",
-    status: "DONE",
-    priority: "Medium",
-    deadline: "2025-07-21",
-    tags: ["testing"],
-  },
-];
-
 function Dashboard() {
-  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"priority" | "deadline" | "">("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showForm, setShowForm] = useState(false);
 
-  // const handleOnTaskDelete = (id) => {
-  //   console.log("task Is Deleted ", id);
-  // };
+  const [isDataLoading, setIsDataLoading] = useState(false);
 
-  // const handleOnTaskEdit = (id) => {
-  //   console.log("Task Is Edited ", id);
-  // };
+  useEffect(() => {
+    setIsDataLoading(true);
+    const getAllTasks = async () => {
+      try {
+        const response = await axiosInstance.get("/tasks/with-status");
+        setTasks(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("Failed to fetch tasks", error);
+      } finally {
+        setIsDataLoading(false);
+      }
+    };
+
+    getAllTasks();
+  }, []);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over) return;
 
-    const taskId = active.id as string;
+    const taskId = active.id;
+    console.log(taskId);
+
     const newStatus = over.id as Task["status"];
+    console.log(newStatus);
+
+    try {
+      const data = {
+        statusId:
+          newStatus === "TODO" ? 1 : newStatus === "IN_PROGRESS" ? 2 : 3,
+      };
+      const response = axiosInstance.post(`tasks/${taskId}/status`, data);
+    } catch (error) {
+      console.log(error);
+    }
 
     setTasks((prev) =>
       prev.map((task) =>
@@ -104,13 +71,16 @@ function Dashboard() {
   const filteredTasks = useMemo(() => {
     let result = [...tasks];
 
-    // Search
+    // Search By Flter
     if (search.trim()) {
-      result = result.filter(
-        (task) =>
-          task.title.toLowerCase().includes(search.toLowerCase()) ||
-          task.description.toLowerCase().includes(search.toLowerCase())
-      );
+      result = result.filter((task) => {
+        const searchString = search.trim().toLocaleLowerCase();
+        return (
+          task.title.toLowerCase().includes(searchString) ||
+          task.description.toLowerCase().includes(searchString) ||
+          task.tagNames.includes(searchString)
+        );
+      });
     }
 
     // Filter by status
@@ -118,9 +88,9 @@ function Dashboard() {
       result = result.filter((task) => task.status === statusFilter);
     }
 
-    // Sort
+    // Sort By Filter
     if (sortBy === "priority") {
-      const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+      const priorityOrder = { HIGH: 1, MEDIUM: 2, LOW: 3 };
       result.sort(
         (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
       );
@@ -134,67 +104,168 @@ function Dashboard() {
     return result;
   }, [search, sortBy, statusFilter, tasks]);
 
+  // Create Task
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleCreateTask(e) {
+    setIsLoading(true);
+    e.preventDefault();
+
+    const form = e.currentTarget;
+    const title = form.title.value;
+    const description = form.description.value;
+    const priority = form.priority.value;
+    const deadline = form.deadline.value;
+
+    const newTask = {
+      title,
+      description,
+      priority,
+      deadline,
+      tagNames: [],
+    };
+
+    try {
+      const response = await axiosInstance.post("/tasks", newTask);
+      const createdTask = response.data;
+      setTasks((prev) => [...prev, createdTask]);
+      setShowForm(false);
+      form.reset();
+    } catch (error) {
+      console.error("Error creating task:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
-    <div className="p-4">
-      {/* Controls */}
-      <div className="text-white flex flex-wrap items-center gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search tasks..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="text-white border px-3 py-1 rounded"
-        />
-
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as any)}
-          className="border px-2 py-1 rounded"
-        >
-          <option value="">Sort by</option>
-          <option value="priority">Priority</option>
-          <option value="deadline">Deadline</option>
-        </select>
-
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border px-2 py-1 rounded"
-        >
-          <option value="">All Status</option>
-          <option value="TODO">To Do</option>
-          <option value="IN_PROGRESS">In Progress</option>
-          <option value="DONE">Done</option>
-        </select>
-
-        
-
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-gray-600 text-white px-4 py-1.5 rounded hover:bg-blue-700"
-        >
-          + Create Task
-        </button>
-      </div>
-
-      {/* Task Columns */}
-      <DndContext onDragEnd={handleDragEnd}>
-        <div className="flex gap-8 overflow-x-auto">
-          {COLUMNS.map((column) => (
-            <TaskColumn
-              key={column.id}
-              column={column}
-              setTasks={setTasks}
-              // onUpdate={handleOnTaskEdit}
-              tasks={filteredTasks.filter((task) => task.status === column.id)}
-            />
-          ))}
+    <>
+      {isDataLoading ? (
+        <div className="flex justify-center mt-50 mb-70">
+          <CircularProgress />
         </div>
-      </DndContext>
+      ) : (
+        <div className="p-4">
+          {/* Controls */}
+          <div className="text-white flex flex-wrap items-center gap-4 mb-6">
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="text-white border px-3 py-1 rounded"
+            />
 
-      {/* Task Creation Form Modal */}
-      {showForm && <CreateTask setShowForm={setShowForm} setTasks={setTasks} />}
-    </div>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="">Sort by</option>
+              <option value="priority">Priority</option>
+              <option value="deadline">Deadline</option>
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="">All Status</option>
+              <option value="TODO">To Do</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="DONE">Done</option>
+            </select>
+
+            <button
+              onClick={() => setShowForm(true)}
+              className="bg-gray-600 text-white px-4 py-1.5 rounded hover:bg-blue-700"
+            >
+              + Create Task
+            </button>
+          </div>
+
+          {/* Task Columns */}
+          <DndContext onDragEnd={handleDragEnd}>
+            <div className="flex gap-8 overflow-x-auto">
+              {COLUMNS.map((column) => (
+                <TaskColumn
+                  key={column.id}
+                  column={column}
+                  setTasks={setTasks}
+                  tasks={filteredTasks.filter(
+                    (task) => task.status === column.id
+                  )}
+                />
+              ))}
+            </div>
+          </DndContext>
+
+          {/* Task Creation Form Modal */}
+          {showForm && (
+            <div className="fixed inset-0  backdrop-blur-sm flex items-center justify-center z-50">
+              <form
+                onSubmit={handleCreateTask}
+                className="bg-white rounded-xl p-6 w-[90%] max-w-md shadow-lg"
+              >
+                <h2 className="text-xl font-bold mb-4">Create New Task</h2>
+                <input
+                  name="title"
+                  required
+                  placeholder="Title"
+                  className="w-full mb-3 px-3 py-2 border rounded"
+                />
+                <textarea
+                  name="description"
+                  required
+                  placeholder="Description"
+                  className="w-full mb-3 px-3 py-2 border rounded"
+                />
+                <select
+                  name="priority"
+                  className="w-full mb-3 px-3 py-2 border rounded"
+                  required
+                >
+                  <option value="">Priority</option>
+                  <option value="HIGH">High</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="LOW">Low</option>
+                </select>
+                <input
+                  type="datetime-local"
+                  name="deadline"
+                  required
+                  className="w-full mb-4 px-3 py-2 border rounded"
+                />
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="cursor-pointer px-3 py-1.5 border rounded hover:bg-red-500"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className={`w-full py-2 rounded-md font-semibold transition-all ${
+                      isLoading
+                        ? "bg-gray-400 text-white cursor-not-allowed"
+                        : "cursor-pointer  bg-cyan-500 hover:bg-cyan-600 text-white"
+                    }`}
+                  >
+                    {isLoading ? "Please wait..." : "Create Task"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 

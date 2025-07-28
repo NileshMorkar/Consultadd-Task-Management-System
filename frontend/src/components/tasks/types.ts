@@ -1,20 +1,25 @@
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 
 export type Task = {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  status: 'TODO' | 'IN_PROGRESS' | 'DONE';
-  priority: 'High' | 'Medium' | 'Low';
+  status: string;
+  priority: string;
   deadline: string;
-  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  tagNames: string[];
+  assigneeEmails: string[];
 };
-export type comment ={
-  id: number;
-  msg:string  
-  msgby:string
-}
 
+export type Comment = {
+  id: number;
+  content: string;
+  author: string;
+  createdAt: string;
+};
 
 export type Column = {
   id: string;

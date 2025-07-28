@@ -62,14 +62,11 @@ export default function NotificationPage() {
   const [isEmpty, setIsEmpty] = useState(false);
 
 
-
-
-
   useEffect(() => {
 
     const getAllNotiications = async () => {
 
-      // const allNotifications = await axiosInstance.get("");
+      // const allNotifications = await axiosInstance.get("/notifications");
 
     }
 
