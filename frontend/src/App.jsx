@@ -40,21 +40,25 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                // <PrivateRoute>
+                <PrivateRoute>
                   <Dashboard />
-                // </PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route
               path="/profile"
               element={
-                <ProfilePage />
+                <PrivateRoute>
+                  <ProfilePage />
+                </PrivateRoute>
               }
             />
             <Route
               path="/notifications"
               element={
-                <NotificationPage />
+                <PrivateRoute>
+                  <NotificationPage />
+                </PrivateRoute>
               }
             />
           </Routes>

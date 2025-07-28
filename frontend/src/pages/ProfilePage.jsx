@@ -1,17 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import defaultAvatar from '../assets/avatar.png';
+import axiosInstance from '../axiosInstance';
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
+
+
   const [user, setUser] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
+    name: '',
+    email: '',
     lastLogin: '2025-07-20 15:30',
     updatedAt: '2025-07-19 14:00',
     avatar: defaultAvatar,
   });
 
+  const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ ...user });
+
+  useEffect(() => {
+    const getProfileData = async () => {
+      try {
+        const response = await axiosInstance.get("/users/me");
+
+        setUser((prev) => ({
+          ...prev,
+          name: response.data.fullName,
+          email: response.data.email,
+          lastLogin: response.data.lastLogin,
+          updatedAt: response.data.updatedAt,
+          avatar: defaultAvatar,
+        }));
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    getProfileData();
+  }, []);
+
+
 
   // 🖼️ Handle text changes
   const handleChange = (e) => {
@@ -55,14 +81,14 @@ export default function ProfilePage() {
           </h2>
           <p className="text-gray-500 dark:text-gray-300">{user.email}</p>
 
-          <div className="mt-4 space-y-1 text-sm text-gray-600 dark:text-gray-400">
+          {/* <div className="mt-4 space-y-1 text-sm text-gray-600 dark:text-gray-400">
             <p>
               <strong>Last Login:</strong> {user.lastLogin}
             </p>
             <p>
               <strong>Last Updated:</strong> {user.updatedAt}
             </p>
-          </div>
+          </div> */}
 
           <button
             onClick={() => setIsEditing(true)}
@@ -83,15 +109,17 @@ export default function ProfilePage() {
                 name="name"
                 type="text"
                 placeholder="Name"
-                value={editData.name}
+                value={user.name}
                 onChange={handleChange}
+
                 className="w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 dark:text-white"
               />
               <input
                 name="email"
                 type="email"
                 placeholder="Email"
-                value={editData.email}
+                value={user.email}
+                disabled
                 onChange={handleChange}
                 className="w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 dark:text-white"
               />
