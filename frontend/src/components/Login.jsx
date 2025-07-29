@@ -52,6 +52,7 @@ function Login() {
               type="email"
               name="email"
               placeholder="Email"
+              required
               value={loginData.username}
               onChange={handleFormaData}
               className="w-full px-4 py-2 rounded-md border border-cyan-500 bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
@@ -62,6 +63,7 @@ function Login() {
             <input
               type="password"
               name="password"
+              required
               placeholder="Password"
               value={loginData.password}
               onChange={handleFormaData}

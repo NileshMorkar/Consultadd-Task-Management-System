@@ -51,6 +51,7 @@ function Register() {
             <input
               type="text"
               name="fullName"
+              required
               placeholder="Full Name"
               value={formData.username}
               onChange={handleFormaData}
@@ -67,6 +68,7 @@ function Register() {
               type="email"
               name="email"
               placeholder="Email Address"
+              required
               value={formData.email}
               onChange={handleFormaData}
               className="w-full px-4 py-2 rounded-md border border-cyan-500 bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
@@ -82,6 +84,7 @@ function Register() {
               type="password"
               name="password"
               placeholder="Set Password"
+              required
               value={formData.password}
               onChange={handleFormaData}
               className="w-full px-4 py-2 rounded-md border border-cyan-500 bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
@@ -102,11 +105,10 @@ function Register() {
           <div className="pt-4">
             <button
               type="submit"
-              className={`w-full py-2 rounded-md font-semibold transition-all ${
-                loading
+              className={`w-full py-2 rounded-md font-semibold transition-all ${loading
                   ? "bg-gray-400 cursor-not-allowed text-white"
                   : "bg-cyan-500 hover:bg-cyan-600 text-white"
-              }`}
+                }`}
               disabled={loading}
             >
               {loading ? "Please wait..." : "Register"}

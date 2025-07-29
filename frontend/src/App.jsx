@@ -12,6 +12,7 @@ import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
 import ProfilePage from "./pages/ProfilePage";
 import NotificationPage from "./pages/NotificationPage";
+import PageNoFound from "./pages/PageNotFound";
 
 function App() {
   return (
@@ -61,6 +62,8 @@ function App() {
                 </PrivateRoute>
               }
             />
+
+            <Route path="*" element={<PageNoFound />} />
           </Routes>
           <Footer />
         </BrowserRouter>
