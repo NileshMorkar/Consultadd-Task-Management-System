@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthProvider";
+import { AuthContext } from "../../AuthProvider";
 
 function Login() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });

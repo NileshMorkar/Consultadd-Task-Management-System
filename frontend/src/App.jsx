@@ -1,25 +1,25 @@
 import "./App.css";
 import "./assets/css/style.css";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import Home from "./components/Home";
+import Footer from "./components/home/Footer";
+import Home from "./components/home/Home";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Register from "./components/Register";
-import Login from "./components/Login";
 import AuthProvider from "./AuthProvider";
-import Dashboard from "./components/tasks/Dashboard";
+import Dashboard from "./components/tasks/Tasks";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
 import ProfilePage from "./pages/ProfilePage";
 import NotificationPage from "./pages/NotificationPage";
 import PageNoFound from "./pages/PageNotFound";
+import AppHeader from "./components/home/AppHeader";
+import Register from "./components/auth/Register";
+import Login from "./components/auth/Login";
 
 function App() {
   return (
     <>
       <AuthProvider>
         <BrowserRouter>
-          <Header />
+          <AppHeader />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route

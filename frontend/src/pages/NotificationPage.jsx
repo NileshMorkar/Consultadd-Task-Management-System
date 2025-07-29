@@ -4,8 +4,7 @@ import Button from '@mui/material/Button';
 import MarkChatUnreadSharpIcon from '@mui/icons-material/MarkChatUnreadSharp';
 import MarkChatReadSharpIcon from '@mui/icons-material/MarkChatReadSharp';
 import Tooltip from '@mui/material/Tooltip';
-import axiosInstance from '../axiosInstance';
-import CustomSnackbar from '../components/CustomSnackBar';
+import CustomSnackbar from '../components/alert-msg/CustomSnackBar';
 
 const dummyNotifications = [
   {
@@ -67,7 +66,6 @@ export default function NotificationPage() {
     const getAllNotiications = async () => {
 
       // const allNotifications = await axiosInstance.get("/notifications");
-
     }
 
     getAllNotiications();

@@ -1,14 +1,14 @@
 import { useContext, useState } from "react";
-import { AuthContext } from "../AuthProvider";
-import Button from "./Button";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 import { Menu, X } from "lucide-react";
-import bellIcon from "../assets/bell.png";
+import bellIcon from "../../assets/bell.png";
 
 import Avatar from "@mui/material/Avatar";
+import { AuthContext } from "../../AuthProvider";
+import Button from "../Button";
 
-function Header() {
+function AppHeader() {
   const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -79,7 +79,7 @@ function Header() {
                 <Button url="/dashboard" text="My Dashboard" />
                 <Button url="/profile" text="My Profile" />
                 <Button url="/notifications" text="My Notifications" />
-                
+
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-medium transition"
@@ -108,4 +108,4 @@ function Header() {
   );
 }
 
-export default Header;
+export default AppHeader;
