@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import type { Task, Column as ColumnType } from "./types";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { Column as TaskColumn } from "./Column";
@@ -19,6 +19,7 @@ function Dashboard() {
 
   const [isDataLoading, setIsDataLoading] = useState(false);
 
+  // Use Effect To load Initial data
   useEffect(() => {
     setIsDataLoading(true);
     const getAllTasks = async () => {
@@ -36,53 +37,56 @@ function Dashboard() {
     getAllTasks();
   }, []);
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over) return;
+  // handle drag And Drop Event Of DND Kit
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
 
-    const taskId = active.id;
-    console.log(taskId);
+      const taskId = active.id;
+      console.log(taskId);
 
-    const newStatus = over.id as Task["status"];
-    console.log(newStatus);
+      const newStatus = over.id as Task["status"];
+      console.log(newStatus);
 
-    try {
-      const data = {
-        statusId:
-          newStatus === "TODO" ? 1 : newStatus === "IN_PROGRESS" ? 2 : 3,
-      };
-      const response = axiosInstance.post(`tasks/${taskId}/status`, data);
-    } catch (error) {
-      console.log(error);
-    }
+      try {
+        const data = {
+          statusId:
+            newStatus === "TODO" ? 1 : newStatus === "IN_PROGRESS" ? 2 : 3,
+        };
+        axiosInstance.post(`tasks/${taskId}/status`, data);
 
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status: newStatus,
-            }
-          : task
-      )
-    );
-  }
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  status: newStatus,
+                }
+              : task
+          )
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [setTasks]
+  );
 
+  // Tasks Filter Function
   const filteredTasks = useMemo(() => {
     let result = [...tasks];
 
     // Search By Flter
-    if (search.trim()) {
-      result = result.filter((task) => {
-        const searchString = search.trim().toLocaleLowerCase();
-        return (
+    const searchString = search.trim().toLowerCase();
+    if (searchString) {
+      result = result.filter(
+        (task) =>
           task.title.toLowerCase().includes(searchString) ||
           task.description.toLowerCase().includes(searchString) ||
           task.tagNames.includes(searchString)
-        );
-      });
+      );
     }
-
     // Filter by status
     if (statusFilter) {
       result = result.filter((task) => task.status === statusFilter);
